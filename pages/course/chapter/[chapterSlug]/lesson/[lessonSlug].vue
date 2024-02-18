@@ -9,7 +9,7 @@
 				v-if="lesson.sourceUrl"
 				class="font-normal text-gray-500 text-md"
 				:to="lesson.sourceUrl"
-			>
+			> 
 				Download Source Code
 			</NuxtLink>
 			<NuxtLink
@@ -38,6 +38,37 @@
     const course = useCourse();
     const route = useRoute();
 
+    definePageMeta({
+        middleware: function({params}, from){
+            const course = useCourse();
+
+            const chapter = course.chapters.find(
+                (chapter) => chapter.slug === params.chapterSlug
+            );
+            
+            if(!chapter){
+                return abortNavigation(createError({ 
+                    statusCode: 404, 
+                    statusMessage: 'Chapter not found', 
+                })
+                )
+            }
+
+            const lesson = chapter.lessons.find(
+                (lesson) => lesson.slug === params.lessonSlug
+            );
+
+            if(!lesson){
+                return abortNavigation(
+                    createError({
+                        statusCode: 404, 
+                        statusMessage: 'Lesson not found', 
+                    } 
+                ))
+            }
+        }
+    })
+    
     const chapter = computed(() => {
         return course.chapters.find(
             (chapter) => chapter.slug === route.params.chapterSlug
@@ -49,7 +80,7 @@
             (lesson) => lesson.slug === route.params.lessonSlug
         );
     });
-
+    
     const title = computed(() => {
         return `${lesson.value.title} - ${chapter.value.title}`;
     });
@@ -60,26 +91,26 @@
 
     const progress = useLocalStorage('progress', []);
 
-const isLessonComplete = computed(() => {
-	if (!progress.value[chapter.value.number - 1]) {
-		return false;
-	}
+    const isLessonComplete = computed(() => {
+        if (!progress.value[chapter.value.number - 1]) {
+            return false;
+        }
 
-	if (!progress.value[chapter.value.number - 1][lesson.value.number - 1]) {
-		return false;
-	}
+        if (!progress.value[chapter.value.number - 1][lesson.value.number - 1]) {
+            return false;
+        }
 
-	return progress.value[chapter.value.number - 1][lesson.value.number - 1];
-});
+        return progress.value[chapter.value.number - 1][lesson.value.number - 1];
+    });
 
-const toggleComplete = () => {
-	if (!progress.value[chapter.value.number - 1]) {
-		progress.value[chapter.value.number - 1] = [];
-	}
+    const toggleComplete = () => {
+        if (!progress.value[chapter.value.number - 1]) {
+            progress.value[chapter.value.number - 1] = [];
+        }
 
-	progress.value[chapter.value.number - 1][lesson.value.number - 1] =
-		!isLessonComplete.value;
-};
+        progress.value[chapter.value.number - 1][lesson.value.number - 1] =
+            !isLessonComplete.value;
+    };
 
 </script>
 

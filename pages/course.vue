@@ -1,15 +1,19 @@
 <script setup>
-    const {chapters } = useCourse();
+    const {chapters, title } = useCourse();
+    // definePageMeta({
+    //     layout: 'custom',
+    // })
+    const resetError = (error) => {
+        error.value = null
+    }
 </script>
 <template>
-	<div
-		class="flex flex-col items-center w-full h-full min-h-screen p-12 bg-gray-100"
-	>
-		<div class="mb-12 prose">
+    <div>
+        <div class="prose mb-12">
 			<h1>
 				<span class="font-medium">
 					Course:
-					<span class="font-bold">Mastering Nuxt 3</span>
+					<span class="font-bold">{{title}}</span>
 				</span>
 			</h1>
 		</div>
@@ -41,10 +45,24 @@
 			</div>
 
 			<div class="prose p-12 bg-white rounded-md w-[65ch]">
-				<NuxtPage />
+                <NuxtErrorBoundary>
+                    <NuxtPage />
+                    <template #error="{ error }">
+                        <p>
+                            Oh no!, something broke
+                            <code>{{ error }}</code>
+                        </p>
+                        <button 
+                            @click="resetError(error)" 
+                            class="bg-gray-500 text-white font-bold px-4 py-2"
+                        >
+                            Reset
+                        </button>
+                    </template>
+                </NuxtErrorBoundary>
 			</div>
 		</div>
-	</div>
+    </div>
 </template>
 
 <style scoped>
